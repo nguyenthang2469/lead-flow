@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  USER  @map("user")
+  ADMIN @map("admin")
+}
+
+enum Platform {
+  MESSENGER
+  ZALO
+  TIKTOK
+}
+
+enum LeadStatus {
+  NEW       @map("new")
+  REPLIED   @map("replied")
+  WAITING   @map("waiting")
+  CONVERTED @map("converted")
+  IGNORED   @map("ignored")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(50)
+  email     String   @unique @db.VarChar(50)
+  password  String
+  role      UserRole @default(USER)
+  leads     Lead[]   @relation("AssignedLeads")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  @@map("users")
+}
+
+model Lead {
+  id           String     @id @default(uuid())
+  customerName String     @map("customer_name") @db.VarChar(50)
+  message      String     @db.Text()
+  platform     Platform   @default(MESSENGER)
+  status       LeadStatus @default(NEW)
+
+  assignedTo String? @map("assigned_to")
+  assignee   User?   @relation("AssignedLeads", fields: [assignedTo], references: [id], onDelete: SetNull)
+
+  activities Activity[]
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  @@map("leads")
+}
+
+model Activity {
+  id        String   @id @default(uuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  action    String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  @@map("activities")
+}
