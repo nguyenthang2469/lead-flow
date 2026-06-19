@@ -13,7 +13,7 @@ import { useState } from 'react';
 import { z } from 'zod/v4';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
-import { reqGetUser, reqLogin } from '@/services/auth.service';
+import { reqLogin } from '@/services/auth.service';
 import { useAuthStore } from '@/store/auth.store';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -58,9 +58,8 @@ const LoginForm = () => {
     data: LoginFormValues
   ) => {
     try {
-      await reqLogin(data);
-      const profileRes = await reqGetUser();
-      setUser(profileRes.data.data);
+      const res = await reqLogin(data);
+      setUser(res);
       toast.success('Logged in successfully');
       replace('/');
     } catch (e) {

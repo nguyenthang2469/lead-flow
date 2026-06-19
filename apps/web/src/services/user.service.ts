@@ -1,5 +1,8 @@
-import axiosClient from '@/lib/axios';
+import { apiRequest } from '@/lib/axios';
 import type { TUser } from '@repo/types';
 
-export const reqGetListUsers = () =>
-  axiosClient.get<{ data: TUser[] }>('/users');
+export const reqGetUser = (signal: AbortSignal) =>
+  apiRequest.get<TUser>('/auth/profile', signal);
+
+export const reqGetListUsers = (signal: AbortSignal) =>
+  apiRequest.get<TUser[]>('/users', signal);

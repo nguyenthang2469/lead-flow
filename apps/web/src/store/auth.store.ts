@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import type { TUser } from '@repo/types';
 import { reqLogout } from '@/services/auth.service';
 
-interface AuthState {
+interface IAuthState {
   user: TUser | null;
   isLoading: boolean; // Checking authentication status
   setUser: (user: TUser | null) => void;
@@ -10,7 +10,7 @@ interface AuthState {
   logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<IAuthState>((set) => ({
   user: null,
   isLoading: true,
   setUser: (user) => {

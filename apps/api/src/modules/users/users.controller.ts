@@ -1,24 +1,27 @@
 import { Controller, Delete, Get, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  getUsersList() {
-    return this.usersService.getUsersList();
+  @ApiOperation({
+    summary: 'Get all users',
+  })
+  findAll() {
+    return this.usersService.getAllUsers();
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'Get user by id',
+  })
   getUser(@Param('id') id: string) {
     return this.usersService.getUser({ id });
   }
-
-  // @Post()
-  // createUser(@Body() createUserDto: CreateUserDto) {
-  //   return this.usersService.createUser(createUserDto);
-  // }
 
   // @Patch(':id')
   // updateUser(

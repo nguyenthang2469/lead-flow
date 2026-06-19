@@ -12,14 +12,14 @@ export class LeadsService {
     private readonly eventsGateway: EventsGateway
   ) {}
 
-  async findAll(filterDto: QueryFilterDto) {
+  async getAllLeads(filterDto: QueryFilterDto) {
     const {
       search,
       status,
       platform,
       assignedTo,
       page = 1,
-      limit = 20,
+      limit = 10,
     } = filterDto;
     const skip = (page - 1) * limit;
     const where: Prisma.LeadWhereInput = {};
@@ -35,7 +35,7 @@ export class LeadsService {
       ];
     }
 
-    const [totalItems, data] = await Promise.all([
+    const [totalItems, items] = await Promise.all([
       this.prismaService.lead.count({ where }),
       this.prismaService.lead.findMany({
         where,
@@ -51,10 +51,10 @@ export class LeadsService {
     ]);
 
     return {
-      data,
+      items,
       meta: {
         totalItems,
-        itemCount: data.length,
+        itemCount: items.length,
         itemsPerPage: limit,
         totalPages: Math.ceil(totalItems / limit),
         currentPage: page,
@@ -62,7 +62,7 @@ export class LeadsService {
     };
   }
 
-  async findOne(id: string) {
+  async getLeadById(id: string) {
     const lead = await this.prismaService.lead.findUnique({
       where: { id },
       include: {
@@ -106,7 +106,7 @@ export class LeadsService {
   }
 
   async update(id: string, updateLeadDto: UpdateLeadDto) {
-    await this.findOne(id);
+    await this.getLeadById(id);
 
     return this.prismaService.$transaction(async (tx) => {
       const currentLead = await tx.lead.findUnique({ where: { id } });
@@ -143,5 +143,12 @@ export class LeadsService {
       this.eventsGateway.emitLeadUpdated(updatedLead);
       return updatedLead;
     });
+  }
+
+  async delete(id: string) {
+    await this.getLeadById(id);
+    await this.prismaService.lead.delete({ where: { id } });
+    this.eventsGateway.emitLeadDeleted(id);
+    return { message: 'Lead deleted successfully' };
   }
 }

@@ -1,5 +1,5 @@
-import axiosClient from '@/lib/axios';
+import { apiRequest } from '@/lib/axios';
 import { TDashboardSummary } from '@repo/types';
 
-export const reqGetSummary = () =>
-  axiosClient.get<{ data: TDashboardSummary }>('/dashboard/summary');
+export const reqGetSummary = (signal: AbortSignal) =>
+  apiRequest.get<TDashboardSummary>('/dashboard/summary', signal);
