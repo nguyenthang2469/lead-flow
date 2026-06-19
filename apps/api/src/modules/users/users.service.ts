@@ -11,8 +11,11 @@ import { USER_PUBLIC_SELECT } from '@/common/constants/user.constant';
 export class UsersService {
   constructor(private prismaService: PrismaService) {}
 
-  getUsersList() {
-    return this.prismaService.user.findMany({ select: USER_PUBLIC_SELECT });
+  getAllUsers() {
+    return this.prismaService.user.findMany({
+      select: USER_PUBLIC_SELECT,
+      orderBy: { name: 'asc' },
+    });
   }
 
   async getUser(findObject: Prisma.UserWhereUniqueInput) {

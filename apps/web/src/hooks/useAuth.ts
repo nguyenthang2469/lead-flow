@@ -1,7 +1,8 @@
 'use client';
 
-import { reqGetUser } from '@/services/auth.service';
+import { reqGetUser } from '@/services/user.service';
 import { useAuthStore } from '@/store/auth.store';
+import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -9,13 +10,13 @@ export function useAuth() {
   const { user, isLoading, setUser, setLoading } = useAuthStore();
   const { replace } = useRouter();
 
-  const getCurrentUser = async () => {
+  const getCurrentUser = async (signal: AbortSignal) => {
     try {
       setLoading(true);
-      const res = await reqGetUser();
-      await new Promise((resolve) => setTimeout(resolve, 4000));
-      setUser(res.data.data);
-    } catch {
+      const data = await reqGetUser(signal);
+      setUser(data);
+    } catch (err) {
+      if (axios.isCancel(err)) return;
       setUser(null);
       replace('/login');
     } finally {
@@ -29,7 +30,11 @@ export function useAuth() {
       return;
     }
 
-    getCurrentUser();
+    const controller = new AbortController();
+
+    getCurrentUser(controller.signal);
+
+    return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

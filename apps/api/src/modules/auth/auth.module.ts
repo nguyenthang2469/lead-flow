@@ -15,6 +15,7 @@ import { UsersModule } from '../users/users.module';
   imports: [
     PassportModule.register({ defaultStrategy: AUTH_STRATEGY.JWT }),
     JwtModule.registerAsync({
+      global: true,
       inject: [HelpService],
       useFactory: (helpService: HelpService) => ({
         secret: helpService.jwtAccessToken.secret,

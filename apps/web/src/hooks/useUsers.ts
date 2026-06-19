@@ -3,11 +3,9 @@ import type { TUser } from '@repo/types';
 import { reqGetListUsers } from '@/services/user.service';
 
 export function useUsers() {
-  return useQuery<TUser[]>({
+  const { data, isLoading } = useQuery<TUser[]>({
     queryKey: ['users'],
-    queryFn: async () => {
-      const res = await reqGetListUsers();
-      return res.data.data;
-    },
+    queryFn: ({ signal }) => reqGetListUsers(signal),
   });
+  return { isLoading, users: data };
 }

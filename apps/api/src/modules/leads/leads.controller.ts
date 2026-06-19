@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Query,
+  Delete,
 } from '@nestjs/common';
 import { LeadsService } from './leads.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
@@ -22,16 +23,16 @@ export class LeadsController {
   @ApiOperation({
     summary: 'Get all leads with advanced filtering and pagination',
   })
-  findAll(@Query() filterDto: QueryFilterDto) {
-    return this.leadsService.findAll(filterDto);
+  getAllLeads(@Query() filterDto: QueryFilterDto) {
+    return this.leadsService.getAllLeads(filterDto);
   }
 
   @Get(':id')
   @ApiOperation({
     summary: 'Get lead detailed information including log activities',
   })
-  findOne(@Param('id') id: string) {
-    return this.leadsService.findOne(id);
+  getLeadById(@Param('id') id: string) {
+    return this.leadsService.getLeadById(id);
   }
 
   @Post()
@@ -46,5 +47,11 @@ export class LeadsController {
   @ApiOperation({ summary: 'Update lead status or assign to a staff' })
   update(@Param('id') id: string, @Body() dto: UpdateLeadDto) {
     return this.leadsService.update(id, dto);
+  }
+
+  @Delete('delete/:id')
+  @ApiOperation({ summary: 'Delete lead' })
+  delete(@Param('id') id: string) {
+    return this.leadsService.delete(id);
   }
 }

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 type TNotificationType = 'info' | 'success' | 'warning';
 
-export interface AppNotification {
+export interface IAppNotification {
   id: string;
   title: string;
   message: string;
@@ -11,21 +11,21 @@ export interface AppNotification {
   read: boolean;
 }
 
-interface NotificationsState {
-  notifications: AppNotification[];
+interface INotificationsState {
+  notifications: IAppNotification[];
   unreadCount: number;
   addNotification: (
-    n: Omit<AppNotification, 'id' | 'createdAt' | 'read'>
+    n: Omit<IAppNotification, 'id' | 'createdAt' | 'read'>
   ) => void;
   markAllRead: () => void;
 }
 
-export const useNotificationsStore = create<NotificationsState>((set) => ({
+export const useNotificationsStore = create<INotificationsState>((set) => ({
   notifications: [],
   unreadCount: 0,
   addNotification: (n) =>
     set((state) => {
-      const newNotif: AppNotification = {
+      const newNotif: IAppNotification = {
         ...n,
         id: crypto.randomUUID(),
         createdAt: new Date(),
