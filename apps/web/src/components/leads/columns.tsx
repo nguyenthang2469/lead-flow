@@ -15,7 +15,13 @@ import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { MoreHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
-import { getLeadStatusColor } from '@/lib/utils';
+import {
+  displayStatusLead,
+  getLeadStatusColor,
+  displayPlatform,
+  getPlatformBadgeClass,
+  cn,
+} from '@/lib/utils';
 import { AssigneeCell } from './assignee-cell';
 
 export const columns: ColumnDef<TLead>[] = [
@@ -32,8 +38,13 @@ export const columns: ColumnDef<TLead>[] = [
     cell: ({ row }) => {
       const platform = row.getValue('platform') as string;
       return (
-        <Badge variant="outline" className="text-xs uppercase">
-          {platform}
+        <Badge
+          className={cn(
+            getPlatformBadgeClass(platform),
+            'text-xs uppercase font-medium border-transparent'
+          )}
+        >
+          {displayPlatform(platform)}
         </Badge>
       );
     },
@@ -57,7 +68,7 @@ export const columns: ColumnDef<TLead>[] = [
       <Badge
         className={`${getLeadStatusColor(row.original.status)} border-transparent font-medium`}
       >
-        {row.original.status}
+        {displayStatusLead(row.original.status)}
       </Badge>
     ),
   },

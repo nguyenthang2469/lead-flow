@@ -1,19 +1,80 @@
 name: lead-app
+
 services:
+  # ─────────────────────────────────────────
+  # PostgreSQL Database
+  # ─────────────────────────────────────────
   postgres:
     image: postgres:16-alpine
-    container_name: postgres
+    container_name: lead-postgres
     restart: on-failure:3
     environment:
-      POSTGRES_DB:
-      POSTGRES_USER:
-      POSTGRES_PASSWORD:
+      POSTGRES_DB: ${POSTGRES_DB:-lead-flow}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     ports:
-      - "5432:5431"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-lead-flow}"]
       interval: 5s
       timeout: 5s
       retries: 12
+    networks:
+      - lead-network
+
+  # ─────────────────────────────────────────
+  # API — NestJS
+  # ─────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: lead-api
+    restart: on-failure:3
+    environment:
+      PORT: ${API_PORT:-3001}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:changeme@postgres:5432/lead-flow}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      JWT_ACCESS_TOKEN_SECRET: ${JWT_ACCESS_TOKEN_SECRET:?JWT_ACCESS_TOKEN_SECRET is required}
+      JWT_ACCESS_TOKEN_EXPIRATION_MS: ${JWT_ACCESS_TOKEN_EXPIRATION_MS:-3600000}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      TELEGRAM_LOG_LEVEL: ${TELEGRAM_LOG_LEVEL:-error}
+    ports:
+      - "${API_PORT:-3001}:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - lead-network
+
+  # ─────────────────────────────────────────
+  # Web — Next.js
+  # ─────────────────────────────────────────
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        # NEXT_PUBLIC_* phải được truyền lúc build vì Next.js embed vào bundle
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001/api}
+    container_name: lead-web
+    restart: on-failure:3
+    environment:
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    networks:
+      - lead-network
+
+volumes:
+  postgres_data:
+
+networks:
+  lead-network:
+    driver: bridge

@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { ELeadStatus, EPlatform, TLead, TQueryFilter } from '@repo/types';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import type { ELeadStatus, EPlatform, TLead } from '@repo/types';
 import { toast } from 'sonner';
 import {
   ILeadFilter,
@@ -9,10 +9,9 @@ import {
 } from '@/services/lead.service';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { DEFAULT_PAGINATION } from '@/lib/constant';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 export function useLeads() {
-  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const { replace } = useRouter();
   const pathname = usePathname();
@@ -23,10 +22,13 @@ export function useLeads() {
   const status = (searchParams.get('status') as ELeadStatus) || undefined;
   const platform = (searchParams.get('platform') as EPlatform) || undefined;
 
-  const params = { page, limit, search, status, platform };
+  const params = useMemo(
+    () => ({ page, limit, search, status, platform }),
+    [page, limit, search, status, platform]
+  );
 
   const updateQueryParams = useCallback(
-    (newValues: TQueryFilter<ILeadFilter>) => {
+    (newValues: ILeadFilter) => {
       const currentParams = new URLSearchParams(searchParams);
       Object.entries(newValues).forEach(([key, value]) => {
         if (!value) {
@@ -49,9 +51,7 @@ export function useLeads() {
     [pathname, replace, searchParams]
   );
 
-  const setPage = (page: number) => {
-    updateQueryParams({ page });
-  };
+  const queryClient = useQueryClient();
 
   const {
     data: response,
@@ -62,19 +62,19 @@ export function useLeads() {
   } = useQuery({
     queryKey: ['leads', params],
     queryFn: ({ signal }) => reqGetLeads(params, signal),
+    placeholderData: keepPreviousData,
   });
 
-  // Mutation Update
-  const updateLeadMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<TLead> }) => {
-      console.log('Update lead mock:', id, data);
-      return Promise.resolve();
-    },
-    onSuccess: () => {
-      toast.success('Lead updated successfully');
-      void queryClient.invalidateQueries({ queryKey: ['leads'] });
-    },
-  });
+  useEffect(() => {
+    const totalPages = response?.meta?.totalPages || 0;
+    if (page < totalPages) {
+      const nextParams = { ...params, page: page + 1 };
+      queryClient.prefetchQuery({
+        queryKey: ['leads', nextParams],
+        queryFn: ({ signal }) => reqGetLeads(nextParams, signal),
+      });
+    }
+  }, [page, params, queryClient, response?.meta?.totalPages]);
 
   return {
     leads: response?.items || [],
@@ -83,12 +83,9 @@ export function useLeads() {
     isError,
     isFetching,
     refetch,
-    updateLead: updateLeadMutation.mutate,
-    isUpdating: updateLeadMutation.isPending,
 
     ...params,
     updateQueryParams,
-    setPage,
   };
 }
 

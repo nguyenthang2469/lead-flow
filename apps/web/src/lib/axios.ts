@@ -18,9 +18,11 @@ axiosClient.interceptors.response.use(
     return response.data;
   },
   (error) => {
+    const isAuthRequest = error.config?.url?.startsWith('/auth/');
     if (
       error.response?.status === HttpStatusCode.Unauthorized &&
-      typeof window !== 'undefined'
+      typeof window !== 'undefined' &&
+      !isAuthRequest
     ) {
       window.location.href = '/login';
     }

@@ -1,4 +1,4 @@
-import { AuthGuard } from '@/AuthGuard';
+import { AuthGuard } from '@/auth-guard';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { TopBar } from '@/components/layout/TopBar';
 

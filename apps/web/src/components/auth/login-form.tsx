@@ -11,7 +11,7 @@ import {
 import { Button } from '../ui/button';
 import { useState } from 'react';
 import { z } from 'zod/v4';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { reqLogin } from '@/services/auth.service';
 import { useAuthStore } from '@/store/auth.store';
@@ -22,7 +22,14 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from '../ui/input-group';
-import { Field, FieldGroup, FieldLabel, FieldSet } from '../ui/field';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from '../ui/field';
+import { Input } from '../ui/input';
 
 const loginSchema = z.object({
   email: z
@@ -43,9 +50,9 @@ const LoginForm = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
 
   const {
-    register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
+    control,
   } = useForm<LoginFormValues>({
     resolver: standardSchemaResolver(loginSchema),
     defaultValues: {
@@ -59,6 +66,7 @@ const LoginForm = () => {
   ) => {
     try {
       const res = await reqLogin(data);
+      console.log({ res });
       setUser(res);
       toast.success('Logged in successfully');
       replace('/');
@@ -79,50 +87,62 @@ const LoginForm = () => {
         <CardDescription>Sign in to your account to continue</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          id="form-login"
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4"
+        >
           <FieldSet>
             <FieldGroup className="gap-4">
-              <Field className="gap-2">
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <InputGroup>
-                  <InputGroupInput
-                    id="email"
-                    type="email"
-                    placeholder="you@company.com"
-                    aria-invalid={!!errors.email?.message}
-                    {...register('email')}
-                  />
-                </InputGroup>
-                {errors.email && (
-                  <p className="text-destructive text-sm">
-                    {errors.email.message}
-                  </p>
+              <Controller
+                name="email"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field className="gap-2">
+                    <FieldLabel htmlFor="email">Email</FieldLabel>
+                    <Input
+                      {...field}
+                      id="email"
+                      type="email"
+                      required={true}
+                      placeholder="you@company.com"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
                 )}
-              </Field>
-              <Field className="gap-2">
-                <FieldLabel htmlFor="password">Password</FieldLabel>
-                <InputGroup>
-                  <InputGroupInput
-                    id="password"
-                    type={isShowPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
-                    aria-invalid={!!errors.password?.message}
-                    {...register('password')}
-                  />
-                  <InputGroupAddon
-                    className="cursor-pointer"
-                    align="inline-end"
-                    onClick={() => setIsShowPassword(!isShowPassword)}
-                  >
-                    <EyeOffIcon />
-                  </InputGroupAddon>
-                </InputGroup>
-                {errors.password && (
-                  <p className="text-destructive text-sm">
-                    {errors.password.message}
-                  </p>
+              />
+              <Controller
+                name="password"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field className="gap-2">
+                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                    <InputGroup>
+                      <InputGroupInput
+                        {...field}
+                        id="password"
+                        type={isShowPassword ? 'text' : 'password'}
+                        required={true}
+                        placeholder="••••••••"
+                        aria-invalid={fieldState.invalid}
+                      />
+                      <InputGroupAddon
+                        className="cursor-pointer"
+                        align="inline-end"
+                        onClick={() => setIsShowPassword(!isShowPassword)}
+                      >
+                        <EyeOffIcon />
+                      </InputGroupAddon>
+                    </InputGroup>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
                 )}
-              </Field>
+              />
             </FieldGroup>
           </FieldSet>
           <Button type="submit" className="w-full" disabled={isSubmitting}>

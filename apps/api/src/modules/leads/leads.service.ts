@@ -79,18 +79,7 @@ export class LeadsService {
 
   async create(dto: Prisma.LeadCreateInput) {
     return this.prismaService.$transaction(async (tx) => {
-      const newLead = await tx.lead.create({
-        data: dto,
-        select: {
-          id: true,
-          customerName: true,
-          message: true,
-          platform: true,
-          status: true,
-          createdAt: true,
-          assignedTo: true,
-        },
-      });
+      const newLead = await tx.lead.create({ data: dto });
 
       // Log activity
       await tx.activity.create({

@@ -56,7 +56,7 @@ export class AuthService {
       httpOnly: true,
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
-      maxAge: this.helpService.jwtAccessToken.expiresIn,
+      maxAge: this.helpService.jwtAccessToken.expiresInMs,
     });
 
     return {
