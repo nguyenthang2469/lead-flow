@@ -49,16 +49,24 @@ export type TActivity = {
 };
 
 export type TDashboardSummary = {
-  totalLeads: number;
-  pendingLeads: number;
-  convertedLeads: number;
+  cards: {
+    totalLeads: number;
+    pendingLeads: number;
+    convertedLeads: number;
+    unassignedLeads: number;
+  };
+  recentLeads: TLead[];
+  chartData: {
+    name: EPlatform;
+    value: number;
+  }[];
 };
 
-export type TQueryFilter<T> = {
+export type TQueryFilter = {
   page?: number;
   limit?: number;
   search?: string;
-} & T;
+};
 
 export type TPaginationResponse<T> = {
   items: T[];

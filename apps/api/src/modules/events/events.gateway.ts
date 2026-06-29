@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as cookie from 'cookie';
 import { config } from 'dotenv';
 import { AUTH_AT_COOKIE_NAME } from '@/common/constants/auth.constant';
+import type { Lead } from '@/generated/prisma/client';
 config();
 @WebSocketGateway({
   cors: {
@@ -68,11 +69,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
   }
 
-  emitNewLead(lead: any) {
+  emitNewLead(lead: Lead) {
     this.server.emit('lead.created', lead);
   }
 
-  emitLeadUpdated(lead: any) {
+  emitLeadUpdated(lead: Lead) {
     this.server.emit('lead.updated', lead);
   }
 

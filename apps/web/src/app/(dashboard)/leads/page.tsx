@@ -10,8 +10,27 @@ import { LeadDetailSheet } from '@/components/leads/lead-detail-sheet';
 import { useState } from 'react';
 import { TLead } from '@repo/types';
 import { ConfirmDialog } from '@/components/ui/confirm-delete';
+import { generatePagination } from '@/lib/utils';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 export default function LeadsPage() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const createPageURL = (pageNumber: number | string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', pageNumber.toString());
+    return `${pathname}?${params.toString()}`;
+  };
   const {
     leads,
     meta,
@@ -23,7 +42,6 @@ export default function LeadsPage() {
     search,
     status,
     platform,
-    setPage,
     updateQueryParams,
   } = useLeads();
   const { deleteLead, isDeleting } = useDeleteLead();
@@ -96,27 +114,44 @@ export default function LeadsPage() {
           />
 
           {meta && meta.totalPages > 1 && (
-            <div className="flex items-center justify-end gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(Math.max(1, page - 1))}
-                disabled={page === 1 || isFetching}
-              >
-                Previous
-              </Button>
-              <span className="text-muted-foreground px-2 text-sm">
-                Page {meta.currentPage} of {meta.totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(Math.min(meta.totalPages, page + 1))}
-                disabled={page === meta.totalPages || isFetching}
-              >
-                Next
-              </Button>
-            </div>
+            <Pagination className="mt-4 justify-end">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href={page > 1 ? createPageURL(page - 1) : '#'}
+                    className={
+                      page === 1
+                        ? 'pointer-events-none opacity-50'
+                        : ''
+                    }
+                  />
+                </PaginationItem>
+                {generatePagination(page, meta.totalPages).map((p, i) => (
+                  <PaginationItem key={i}>
+                    {p === '...' ? (
+                      <PaginationEllipsis />
+                    ) : (
+                      <PaginationLink
+                        href={createPageURL(p)}
+                        isActive={page === p}
+                      >
+                        {p}
+                      </PaginationLink>
+                    )}
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    href={page < meta.totalPages ? createPageURL(page + 1) : '#'}
+                    className={
+                      page === meta.totalPages
+                        ? 'pointer-events-none opacity-50'
+                        : ''
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           )}
 
           <LeadDetailSheet

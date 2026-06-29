@@ -1,13 +1,14 @@
-'use client';
-
-import { StatCard } from '@/components/dashboard/StatCard';
-import { useDashboard } from '@/hooks/useDashboard';
-import { TrendingUp, Clock, Users } from 'lucide-react';
-import { CardSkeleton } from '@/components/ui/card-skeleton';
+import { Suspense } from 'react';
+import {
+  CardsSkeleton,
+  PlatformChartSkeleton,
+  RecentLeadsSkeleton,
+} from '@/components/ui/skeletons';
+import CardWrapper from '@/components/dashboard/stat-card';
+import PlatformChart from '@/components/dashboard/platform-chart';
+import RecentLeads from '@/components/dashboard/recent-leads';
 
 export default function DashboardPage() {
-  const { data, isLoading } = useDashboard();
-
   return (
     <div className="space-y-6">
       <div>
@@ -17,31 +18,16 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {isLoading ? (
-          Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)
-        ) : (
-          <>
-            <StatCard
-              title="Total Leads"
-              value={data?.totalLeads ?? 0}
-              icon={Users}
-              description="All time"
-            />
-            <StatCard
-              title="Pending"
-              value={data?.pendingLeads ?? 0}
-              icon={Clock}
-              description="New + Waiting + Replied"
-            />
-            <StatCard
-              title="Converted"
-              value={data?.convertedLeads ?? 0}
-              icon={TrendingUp}
-              description="Successfully closed"
-            />
-          </>
-        )}
+      <Suspense fallback={<CardsSkeleton />}>
+        <CardWrapper />
+      </Suspense>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Suspense fallback={<PlatformChartSkeleton />}>
+          <PlatformChart />
+        </Suspense>
+        <Suspense fallback={<RecentLeadsSkeleton />}>
+          <RecentLeads />
+        </Suspense>
       </div>
     </div>
   );

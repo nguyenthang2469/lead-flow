@@ -1,0 +1,38 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Build outputs
+dist
+**/dist
+.next
+**/.next
+
+# Turbo cache
+.turbo
+**/.turbo
+
+# Git
+.git
+.gitignore
+
+# Docker
+**/Dockerfile
+docker-compose.yaml
+.dockerignore
+
+# Logs
+logs
+**/*.log
+
+.env
+**/.env
+
+# Dev tools
+.eslintrc*
+*.md
+README.md
+
+# OS
+.DS_Store
+Thumbs.db

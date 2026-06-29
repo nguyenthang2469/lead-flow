@@ -19,7 +19,7 @@ import { UsersModule } from '../users/users.module';
       inject: [HelpService],
       useFactory: (helpService: HelpService) => ({
         secret: helpService.jwtAccessToken.secret,
-        signOptions: { expiresIn: helpService.jwtAccessToken.expiresIn },
+        signOptions: { expiresIn: helpService.jwtAccessToken.expiresInSeconds },
       }),
     }),
     UsersModule,

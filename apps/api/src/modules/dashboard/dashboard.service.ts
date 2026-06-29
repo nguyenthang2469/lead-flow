@@ -54,7 +54,7 @@ export class DashboardService {
     }));
 
     return {
-      cards: { totalLeads, pendingLeads, convertedLeads },
+      cards: { totalLeads, pendingLeads, convertedLeads, unassignedLeads },
       recentLeads,
       chartData,
     };

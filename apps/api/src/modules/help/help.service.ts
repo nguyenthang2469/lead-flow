@@ -46,9 +46,12 @@ export class HelpService {
   }
 
   get jwtAccessToken() {
+    const expiresInMs =
+      Number(this.getEnv('JWT_ACCESS_TOKEN_EXPIRATION_MS')) || 300_000;
     return {
       secret: this.getEnv('JWT_ACCESS_TOKEN_SECRET'),
-      expiresIn: Number(this.getEnv('JWT_ACCESS_TOKEN_EXPIRATION_MS')) || 30000,
+      expiresInMs,
+      expiresInSeconds: Math.floor(expiresInMs / 1000),
     };
   }
 }

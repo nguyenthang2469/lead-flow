@@ -31,6 +31,7 @@ export function DataTable<TData, TValue>({
   meta,
   onRowClick,
 }: IDataTableProps<TData, TValue>) {
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     columns,
     data,

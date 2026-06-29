@@ -17,13 +17,13 @@ import {
   InputGroupInput,
 } from '../ui/input-group';
 import { useRef } from 'react';
-import { ISearchParamsLead } from '@/services/lead.service';
+import { ILeadFilter } from '@/services/lead.service';
 
 interface ILeadsToolbarProps {
   search: string;
   status: string | undefined;
   platform: string | undefined;
-  updateQueryParams: (params: ISearchParamsLead) => void;
+  updateQueryParams: (params: ILeadFilter) => void;
 }
 
 export function LeadsToolbar({
