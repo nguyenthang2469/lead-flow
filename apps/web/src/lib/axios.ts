@@ -33,14 +33,21 @@ axiosClient.interceptors.response.use(
 export const apiRequest = {
   get: <T>(url: string, signal: AbortSignal) =>
     axiosClient.get<unknown, T>(url, { signal }),
-  getPagination: <P extends object, D = unknown>(
+  getPagination: <TData, TParams extends object>(
     url: string,
-    params: P,
+    params: TParams,
     signal: AbortSignal
   ) =>
-    axiosClient.get<unknown, TPaginationResponse<D>>(url, { params, signal }),
-  update: <T>(url: string, data: T) => axiosClient.patch<unknown, T>(url, data),
-  delete: (url: string) => axiosClient.delete(url),
+    axiosClient.get<unknown, TPaginationResponse<TData>>(url, {
+      params,
+      signal,
+    }),
+  post: <TResponse, TBody = unknown>(url: string, data?: TBody) =>
+    axiosClient.post<unknown, TResponse>(url, data),
+  patch: <TResponse, TBody = unknown>(url: string, data: TBody) =>
+    axiosClient.patch<unknown, TResponse>(url, data),
+  delete: <TResponse = void>(url: string) =>
+    axiosClient.delete<unknown, TResponse>(url),
 };
 
 export default axiosClient;

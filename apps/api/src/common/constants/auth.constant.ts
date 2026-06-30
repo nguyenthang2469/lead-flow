@@ -3,3 +3,4 @@ export const AUTH_STRATEGY = {
   LOCAL: 'local',
   JWT: 'jwt',
 };
+export const MESSENGER_SIGNATURE_HEADER = 'x-hub-signature-256';

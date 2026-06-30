@@ -1,5 +1,11 @@
 import { apiRequest } from '@/lib/axios';
-import { ELeadStatus, EPlatform, TLead, TQueryFilter } from '@repo/types';
+import {
+  ELeadStatus,
+  EPlatform,
+  TLead,
+  TPaginationResponse,
+  TQueryFilter,
+} from '@repo/types';
 
 export type ILeadFilter = TQueryFilter & {
   status?: ELeadStatus;
@@ -7,11 +13,16 @@ export type ILeadFilter = TQueryFilter & {
   assignedTo?: string;
 };
 
-export const reqGetLeads = (params: ILeadFilter, signal: AbortSignal) =>
-  apiRequest.getPagination<ILeadFilter, TLead>('/leads', params, signal);
+export const reqGetLeads = (
+  params: ILeadFilter,
+  signal: AbortSignal
+): Promise<TPaginationResponse<TLead>> =>
+  apiRequest.getPagination('/leads', params, signal);
 
-export const reqUpdateLead = (id: string, data: Partial<TLead>) =>
-  apiRequest.update(`/leads/${id}`, data);
+export const reqUpdateLead = (
+  id: string,
+  data: Partial<TLead>
+): Promise<TLead> => apiRequest.patch(`/leads/${id}`, data);
 
 export const reqDeleteLead = (id: string) =>
   apiRequest.delete(`leads/delete/${id}`);

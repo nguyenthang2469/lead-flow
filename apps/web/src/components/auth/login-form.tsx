@@ -16,7 +16,7 @@ import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { reqLogin } from '@/services/auth.service';
 import { useAuthStore } from '@/store/auth.store';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   InputGroup,
   InputGroupAddon,
@@ -30,6 +30,7 @@ import {
   FieldSet,
 } from '../ui/field';
 import { Input } from '../ui/input';
+import axios from 'axios';
 
 const loginSchema = z.object({
   email: z
@@ -46,6 +47,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
   const { replace } = useRouter();
+  const searchParams = useSearchParams();
   const setUser = useAuthStore((s) => s.setUser);
   const [isShowPassword, setIsShowPassword] = useState(false);
 
@@ -69,10 +71,31 @@ const LoginForm = () => {
       console.log({ res });
       setUser(res);
       toast.success('Logged in successfully');
-      replace('/');
+      
+      const callbackUrl = searchParams.get('callbackUrl');
+      if (callbackUrl && callbackUrl.startsWith('/')) {
+        replace(callbackUrl);
+      } else {
+        replace('/');
+      }
     } catch (e) {
-      console.error(e);
-      toast.error('Invalid email or password');
+      if (axios.isAxiosError(e)) {
+        if (!e.response) {
+          toast.error('Network error. Please check your internet connection.');
+          return;
+        }
+
+        const status = e.response.status;
+        if (status === 401) {
+          toast.error('Invalid email or password');
+        } else if (status === 429) {
+          toast.error('Too many attempts, please try again later');
+        } else {
+          toast.error('Something went wrong, please try again');
+        }
+      } else {
+        toast.error('An unexpected error occurred');
+      }
     }
   };
 
