@@ -11,7 +11,9 @@ import { AUTH_AT_COOKIE_NAME } from './common/constants/auth.constant';
 import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true,
+  });
   const helpService = app.get(HelpService);
 
   app.useLogger(app.get(AppLogger));

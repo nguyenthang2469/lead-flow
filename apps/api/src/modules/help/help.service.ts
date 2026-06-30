@@ -54,4 +54,12 @@ export class HelpService {
       expiresInSeconds: Math.floor(expiresInMs / 1000),
     };
   }
+
+  get messengerAppSecret() {
+    return this.getEnv('MESSENGER_APP_SECRET');
+  }
+
+  get messengerVerifyToken() {
+    return this.getEnv('MESSENGER_VERIFY_TOKEN');
+  }
 }

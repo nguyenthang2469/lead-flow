@@ -1,4 +1,4 @@
-import { AppLogger } from '@/common/logger/logger.service';
+import { Logger } from '@nestjs/common';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -24,10 +24,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server!: Server;
 
-  constructor(
-    private readonly logger: AppLogger,
-    private readonly jwtService: JwtService
-  ) {}
+  private readonly logger = new Logger(EventsGateway.name);
+
+  constructor(private readonly jwtService: JwtService) {}
 
   afterInit(server: Server) {
     server.use((socket: Socket, next) => {

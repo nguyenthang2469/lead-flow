@@ -76,6 +76,17 @@ export function useLeads() {
     }
   }, [page, params, queryClient, response?.meta?.totalPages]);
 
+  useEffect(() => {
+    const totalPages = response?.meta?.totalPages;
+    if (totalPages !== undefined) {
+      if (totalPages === 0 && page > 1) {
+        updateQueryParams({ page: 1 });
+      } else if (totalPages > 0 && page > totalPages) {
+        updateQueryParams({ page: totalPages });
+      }
+    }
+  }, [page, response?.meta?.totalPages, updateQueryParams]);
+
   return {
     leads: response?.items || [],
     meta: response?.meta,

@@ -14,6 +14,7 @@ import { UsersModule } from './modules/users/users.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { LeadsModule } from './modules/leads/leads.module';
 import { EventsModule } from './modules/events/events.module';
+import { WebhooksModule } from './modules/webhooks/webhooks.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { EventsModule } from './modules/events/events.module';
     LeadsModule,
     EventsModule,
     DashboardModule,
+    WebhooksModule,
   ],
   controllers: [AppController],
   providers: [

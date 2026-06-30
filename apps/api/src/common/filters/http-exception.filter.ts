@@ -4,16 +4,16 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { AppLogger } from '../logger/logger.service';
 import { isObject } from 'class-validator';
 
 @Catch()
 export class HttpExceptionFilter<
   T extends HttpException,
 > implements ExceptionFilter {
-  constructor(private readonly logger: AppLogger) {}
+  private readonly logger = new Logger(HttpExceptionFilter.name);
 
   catch(exception: T, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -34,8 +34,7 @@ export class HttpExceptionFilter<
     const trace = exception instanceof Error ? exception.stack : undefined;
     this.logger.error(
       `${request.method} ${request.url} failed with status ${status} - ${JSON.stringify(errorMessage)}`,
-      trace,
-      HttpExceptionFilter.name
+      trace
     );
 
     response.status(status).json({
